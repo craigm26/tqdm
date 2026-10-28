@@ -31,3 +31,15 @@ def test_ci_tqdm_explicit_disable_wins(monkeypatch):
     for _ in ci_tqdm(range(3), file=out, disable=False):
         pass
     assert "3/3" in out.getvalue()
+
+
+def test_ci_progress_keeps_a_throttled_bar(monkeypatch):
+    monkeypatch.setenv("CI", "true")
+    monkeypatch.setenv("CI_PROGRESS", "30")
+    out = StringIO()
+    bar = ci_tqdm(range(3), file=out)
+    assert not bar.disable
+    assert bar.mininterval == 30
+    for _ in bar:
+        pass
+    assert "3/3" in out.getvalue()
